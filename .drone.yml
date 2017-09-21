@@ -1,3 +1,4 @@
+#############
 workspace:
   base: /go
   path: src/github.com/mpsejl/Hello
@@ -10,5 +11,4 @@ pipeline:
       - go test
       - go build
       - go install
-      
-####################
+     
