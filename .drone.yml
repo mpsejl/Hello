@@ -9,4 +9,5 @@ pipeline:
       - go get ./...
       - go test
       - go build
+      - go install
 
