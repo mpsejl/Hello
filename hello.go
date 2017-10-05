@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -51,14 +50,21 @@ func test1() {
 	bb := Blackboard{Name: "server", Fullname: "mpsejl/server", Language: "Go", Building: false}
 	bb.Repo = "github.com/" + bb.Fullname
 
+	createMakefile := func() int {
+		t := template.Must(template.New("Makefile").Parse(MAKEFILE))
+
+		err := t.Execute(&bb.Makefile, bb)
+
+		if err != nil {
+			fmt.Println("Error Creating Makefile:", err.Error())
+			return bt.FAILURE
+		}
+		fmt.Println("Makefile:", "\n\n", bb.Makefile.String())
+		return bt.SUCCESS
+	}
+
 	root := bt.NewRootNode("Start", nil, false)
-
-	// Makefile
-	t := template.Must(template.New("Makefile").Parse(MAKEFILE))
-
-	var tempbuffer bytes.Buffer
-	err := t.Execute(&tempbuffer, bb)
-
-	fmt.Println(tempbuffer.String())
+	root.SetNode(bt.NewActionNode(createMakefile))
+	root.Run()
 
 }

@@ -1,7 +1,7 @@
 package main
 
-const MAKEFILE = \
-`
+const MAKEFILE = `
+
 WINDOWS = GOOS=windows GOARCH=amd64 CGO_ENABLED=0
 LINUX = GOARCH=amd64 CGO_ENABLED=0
 
