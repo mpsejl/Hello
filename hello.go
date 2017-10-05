@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -17,6 +18,7 @@ type Blackboard struct {
 	Fullname string
 	Language string
 	Repo     string
+	Makefile bytes.Buffer
 	Building bool
 }
 
