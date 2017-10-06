@@ -2,12 +2,8 @@ package main
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"html/template"
-
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 
 	bt "github.com/mpsejl/behaviortree"
 )
@@ -27,22 +23,6 @@ func main() {
 
 	// Create Makefile
 	test1()
-
-	// Connect to Docker and list running containers
-
-	cli, err := client.NewEnvClient()
-	if err != nil {
-		panic(err)
-	}
-
-	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	for _, container := range containers {
-		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
-	}
 
 }
 
@@ -65,8 +45,14 @@ func test1() {
 		return bt.SUCCESS
 	}
 
+	gb := golangBuild{}
+	gb.SetBlackboard(&bb)
+
 	root := bt.NewRootNode("Start", nil, false)
-	root.SetNode(bt.NewActionNode(createMakefile))
+	s1 := bt.NewSequenceNode("Build")
+	s1.And(bt.NewActionNode(createMakefile)).And(bt.NewActionNode(gb.Connect)).And(bt.NewActionNode(gb.Create))
+
+	root.SetNode(s1)
 	root.Run()
 
 }
