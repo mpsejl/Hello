@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/tar"
 	"bytes"
 	"context"
 	"log"
@@ -54,9 +55,28 @@ func (t *golangBuild) Create() int {
 	return bt.SUCCESS
 }
 
-func (t *golangBuild) copyTo(file *bytes.Buffer, topath string) bool {
+func (t *golangBuild) copyTo(file *bytes.Buffer, name, topath string) bool {
 	log.Println("Build - CopyTo()")
-	err := t.cli.CopyToContainer(context.Background(), t.id, topath, file, types.CopyToContainerOptions{})
+
+	buf := new(bytes.Buffer)
+	tw := tar.NewWriter(buf)
+	defer tw.Close()
+
+	tarHeader := &tar.Header{
+		Name: name,
+		Size: int64(file.Len()),
+	}
+	err := tw.WriteHeader(tarHeader)
+	if err != nil {
+		log.Fatal(err, " :unable to write tar header")
+	}
+	_, err = tw.Write(file.Bytes())
+	if err != nil {
+		log.Fatal(err, " :unable to write tar body")
+	}
+	tarreader := bytes.NewReader(buf.Bytes())
+
+	err = t.cli.CopyToContainer(context.Background(), t.id, topath, tarreader, types.CopyToContainerOptions{})
 	if err != nil {
 		log.Println(err)
 		return false
@@ -65,7 +85,7 @@ func (t *golangBuild) copyTo(file *bytes.Buffer, topath string) bool {
 }
 
 func (t *golangBuild) CopyMakefile() int {
-	if t.copyTo(&t.bb.Makefile, "/go/Makefile") {
+	if t.copyTo(&t.bb.Makefile, "Makefile", "/go/Makefile") {
 		return bt.SUCCESS
 	}
 	return bt.FAILURE
