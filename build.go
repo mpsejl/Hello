@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"log"
@@ -57,7 +56,7 @@ func (t *golangBuild) Create() int {
 
 func (t *golangBuild) copyTo(file *bytes.Buffer, topath string) bool {
 	log.Println("Build - CopyTo()")
-	err := t.cli.CopyToContainer(context.Background(), t.id, topath, bufio.NewReader(file), types.CopyToContainerOptions{})
+	err := t.cli.CopyToContainer(context.Background(), t.id, topath, file, types.CopyToContainerOptions{})
 	if err != nil {
 		log.Println(err)
 		return false
