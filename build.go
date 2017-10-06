@@ -85,7 +85,7 @@ func (t *golangBuild) copyTo(file *bytes.Buffer, name, topath string) bool {
 }
 
 func (t *golangBuild) CopyMakefile() int {
-	if t.copyTo(&t.bb.Makefile, "Makefile", "/go/Makefile") {
+	if t.copyTo(&t.bb.Makefile, "Makefile", "/go") {
 		return bt.SUCCESS
 	}
 	return bt.FAILURE
