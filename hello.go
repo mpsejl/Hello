@@ -50,7 +50,10 @@ func test1() {
 
 	root := bt.NewRootNode("Start", nil, false)
 	s1 := bt.NewSequenceNode("Build")
-	s1.And(bt.NewActionNode(createMakefile)).And(bt.NewActionNode(gb.Connect)).And(bt.NewActionNode(gb.Create))
+	s1.And(bt.NewActionNode(createMakefile)).
+		And(bt.NewActionNode(gb.Connect)).
+		And(bt.NewActionNode(gb.Create)).
+		And(bt.NewActionNode(gb.CopyMakefile))
 
 	root.SetNode(s1)
 	root.Run()

@@ -23,6 +23,7 @@ func (t *golangBuild) SetBlackboard(bb *Blackboard) {
 }
 
 func (t *golangBuild) Connect() int {
+	log.Println("Build - Connect()")
 	var err error
 	t.cli, err = client.NewEnvClient()
 	if err != nil {
@@ -33,6 +34,7 @@ func (t *golangBuild) Connect() int {
 }
 
 func (t *golangBuild) Create() int {
+	log.Println("Build - Create()")
 	//var cc *container.Config
 	//var hc *container.HostConfig
 	//var nc *network.NetworkingConfig
@@ -53,11 +55,21 @@ func (t *golangBuild) Create() int {
 	return bt.SUCCESS
 }
 
-func (t *golangBuild) CopyTo(makefile *bytes.Buffer) {
-	err := t.cli.CopyToContainer(context.Background(), t.id, t.id+":/go/Makefile", bufio.NewReader(makefile), types.CopyToContainerOptions{})
+func (t *golangBuild) copyTo(file *bytes.Buffer, topath string) bool {
+	log.Println("Build - CopyTo()")
+	err := t.cli.CopyToContainer(context.Background(), t.id, t.id+":"+topath, bufio.NewReader(file), types.CopyToContainerOptions{})
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return false
 	}
+	return true
+}
+
+func (t *golangBuild) CopyMakefile() int {
+	if t.copyTo(&t.bb.Makefile, "/go/Makefile") {
+		return bt.SUCCESS
+	}
+	return bt.FAILURE
 }
 
 func (t *golangBuild) Start() {
